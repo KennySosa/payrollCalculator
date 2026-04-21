@@ -2,17 +2,30 @@ package com.pluralsight;
 
 import java.io.BufferedReader;
 import java.io.FileReader;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Scanner;
 
 public class Main {
     public static void main(String[] args) {
 
-        String fileName = "src/main/resources/Employees.csv";
+        Scanner scanner = new Scanner(System.in);
 
-        System.out.printf("%-5s %-20s %10s%n", "ID", "Name", "Gross Pay");
-        System.out.println("-".repeat(38));
+        // Prompt user for input and output file names
+        System.out.print("Enter the name of the employee file to process: ");
+        String inputFile = scanner.nextLine().trim();
 
-        try (BufferedReader reader = new BufferedReader(new FileReader(fileName))) {
+        System.out.print("Enter the name of the payroll file to create: ");
+        String outputFile = scanner.nextLine().trim();
+
+        scanner.close();
+
+        // Read employees from the input file
+        List<Employee> employees = new ArrayList<>();
+
+        try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/" + inputFile))) {
 
             String line;
             boolean isFirstLine = true;
@@ -31,27 +44,40 @@ public class Main {
                 // Split each line by the | delimiter
                 String[] tokens = line.split("\\|");
 
-                // Parse each field into the correct data type
                 int employeeId     = Integer.parseInt(tokens[0].trim());
                 String name        = tokens[1].trim();
                 double hoursWorked = Double.parseDouble(tokens[2].trim());
                 double payRate     = Double.parseDouble(tokens[3].trim());
 
-                // Create a new Employee object
-                Employee emp = new Employee(employeeId, name, hoursWorked, payRate);
-
-                // Display the employee's payroll info
-                System.out.printf("%-5d %-20s $%9.2f%n",
-                        emp.getEmployeeId(),
-                        emp.getName(),
-                        emp.getGrossPay());
+                employees.add(new Employee(employeeId, name, hoursWorked, payRate));
             }
 
         } catch (IOException e) {
-            System.out.println("Error: Could not find or read \"" + fileName + "\"");
-            System.out.println("Make sure the file is in your project root folder.");
+            System.out.println("Error: Could not find or read \"" + inputFile + "\"");
+            return;
         } catch (NumberFormatException e) {
             System.out.println("Error: The file contains invalid data. Please check the format.");
+            return;
+        }
+
+        // Write output as CSV
+        String outputPath = "src/main/resources/" + outputFile;
+
+        try (FileWriter writer = new FileWriter(outputPath)) {
+
+            writer.write("id|name|gross pay\n");
+
+            for (Employee emp : employees) {
+                writer.write(String.format("%d|%s|%.2f%n",
+                        emp.getEmployeeId(),
+                        emp.getName(),
+                        emp.getGrossPay()));
+            }
+
+            System.out.println("Payroll file created: " + outputFile);
+
+        } catch (IOException e) {
+            System.out.println("Error: Could not create output file \"" + outputFile + "\"");
         }
     }
 }
