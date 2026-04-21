@@ -13,7 +13,7 @@ public class Main {
 
         Scanner scanner = new Scanner(System.in);
 
-        // Prompt user for input and output file names
+
         System.out.print("Enter the name of the employee file to process: ");
         String inputFile = scanner.nextLine().trim();
 
@@ -22,7 +22,7 @@ public class Main {
 
         scanner.close();
 
-        // Read employees from the input file
+
         List<Employee> employees = new ArrayList<>();
 
         try (BufferedReader reader = new BufferedReader(new FileReader("src/main/resources/" + inputFile))) {
@@ -32,16 +32,15 @@ public class Main {
 
             while ((line = reader.readLine()) != null) {
 
-                // Skip the header row
                 if (isFirstLine) {
                     isFirstLine = false;
                     continue;
                 }
 
-                // Skip empty lines
+
                 if (line.trim().isEmpty()) continue;
 
-                // Split each line by the | delimiter
+
                 String[] tokens = line.split("\\|");
 
                 int employeeId     = Integer.parseInt(tokens[0].trim());
@@ -60,7 +59,7 @@ public class Main {
             return;
         }
 
-        // Write output as CSV
+        //csv part
         String outputPath = "src/main/resources/" + outputFile;
 
         try (FileWriter writer = new FileWriter(outputPath)) {
